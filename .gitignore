@@ -3,3 +3,4 @@ public/screenshots/*.png
 models/*.csv
 .DS_Store
 *.log
+*.zip
