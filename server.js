@@ -351,6 +351,10 @@ app.get('/api/ml/stats', async (req, res) => {
   }
 });
 
-app.listen(PORT, () => {
-  console.log(`URL Analyser Server running on http://localhost:${PORT}`);
-});
+if (process.env.VERCEL !== '1' && !process.env.NOW_REGION) {
+  app.listen(PORT, () => {
+    console.log(`URL Analyser Server running on http://localhost:${PORT}`);
+  });
+}
+
+export default app;
