@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Linkscope – Advanced URL Intelligence & Phishing Defense</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body data-theme="dark">
+
+  <header class="navbar">
+    <div class="nav-container">
+      <div class="brand">
+        <div class="radar-dot"></div>
+        <span class="brand-name">Linkscope</span>
+        <span class="brand-badge">2.0 Pro</span>
+      </div>
+      <nav class="nav-tabs" id="mainNav">
+        <button class="nav-btn active" data-tab="tab-scan">Analyze URL</button>
+        <button class="nav-btn" data-tab="tab-text">Email / Text</button>
+        <button class="nav-btn" data-tab="tab-compare">URL Diff</button>
+        <button class="nav-btn" data-tab="tab-lookalikes">Lookalikes</button>
+        <button class="nav-btn" data-tab="tab-history">History (<span id="histCount">0</span>)</button>
+      </nav>
+      <div class="nav-actions">
+        <button id="themeToggle" class="icon-btn" title="Toggle Light/Dark Theme">🌓</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="main-content">
+
+    <!-- TAB 1: SINGLE URL SCAN -->
+    <section id="tab-scan" class="tab-panel active">
+      <div class="hero">
+        <h1>Inspect Any Link Before You Click</h1>
+        <p class="subtitle">Multi-tier forensic analysis: unwraps tracking redirects, inspects login forms for credential theft, flags cloud-hosted phishing, and previews target pages in an isolated visual sandbox.</p>
+      </div>
+
+      <div class="search-box-card">
+        <div class="search-row">
+          <input type="text" id="urlInput" placeholder="Paste link (e.g. hxxps://secure-paypa1.pages.dev/login or normal URL)" autocomplete="off" spellcheck="false">
+          <button id="scanBtn" class="primary-btn">
+            <span class="btn-text">Analyze Link</span>
+            <span class="spinner" id="scanSpinner" style="display:none"></span>
+          </button>
+        </div>
+        <div class="quick-examples">
+          <span class="example-label">Try test cases:</span>
+          <button class="pill-btn" onclick="app.setAndScan('https://www.paypal.com/signin')">Real PayPal</button>
+          <button class="pill-btn danger" onclick="app.setAndScan('hxxps://paypal-security-alert.pages[.]dev/verify')">Cloud Phishing (Pages)</button>
+          <button class="pill-btn warning" onclick="app.setAndScan('http://2130706433/login')">Decimal IP</button>
+          <button class="pill-btn info" onclick="app.setAndScan('https://nam12.safelinks.protection.outlook.com/?url=https%3A%2F%2Fexample.com%2Freport%3Futm_source%3Demail')">SafeLinks Wrapper</button>
+        </div>
+      </div>
+
+      <!-- Live Loading State -->
+      <div id="scanLoading" class="scan-loading" style="display:none">
+        <div class="scanner-laser"></div>
+        <div class="loading-content">
+          <div class="pulse-ring"></div>
+          <p id="loadingMsg">Initiating multi-tier inspection...</p>
+        </div>
+      </div>
+
+      <!-- RESULTS CONTAINER -->
+      <div id="resultsCard" class="results-card" style="display:none">
+        
+        <!-- Risk Verdict Header -->
+        <div id="verdictBanner" class="verdict-banner">
+          <div class="score-dial">
+            <span id="scoreVal" class="score-num">0</span>
+            <span class="score-denom">/100</span>
+          </div>
+          <div class="verdict-info">
+            <div class="verdict-title-row">
+              <span id="verdictBadge" class="badge">Safe</span>
+              <h2 id="verdictTitle">Low Risk</h2>
+            </div>
+            <p id="verdictSummary">Summary text</p>
+          </div>
+          <div class="quick-actions">
+            <button id="copyCleanBtn" class="action-btn" title="Strip all tracking parameters">Clean Link</button>
+            <button id="copyDefangedBtn" class="action-btn" title="Copy as hxxps://domain[.]com">Defanged Link</button>
+          </div>
+        </div>
+
+        <!-- Highlighted Address Bar Decomposition -->
+        <div class="card-section">
+          <div class="section-header">
+            <h3>Highlighted Address Breakdown</h3>
+            <span class="info-tag">Owner Isolation</span>
+          </div>
+          <p class="section-desc">Attackers hide behind long subdomains. Look at the <strong style="color:var(--accent-glow)">bold highlighted</strong> section—that is the actual registered domain that controls this site.</p>
+          <div class="address-deconstructed" id="addressBarVisual">
+            <!-- Dynamically populated -->
+          </div>
+        </div>
+
+        <!-- Dynamic Finding Flags -->
+        <div class="card-section" id="findingsSection">
+          <div class="section-header">
+            <h3>Security Findings (<span id="findingCount">0</span>)</h3>
+          </div>
+          <div id="findingsList" class="findings-list">
+            <!-- Dynamic findings -->
+          </div>
+        </div>
+
+        <!-- Multi-Grid Analysis Cards -->
+        <div class="analysis-grid">
+
+          <!-- Card 0: Machine Learning Forensic Classifier -->
+          <div class="grid-card ml-card" style="border: 1.5px solid var(--accent); background: linear-gradient(180deg, rgba(0, 210, 147, 0.08), var(--bg-card-sub));">
+            <div class="card-title">
+              <span>🤖 Machine Learning Classifier</span>
+              <span class="mini-tag" id="mlBadge" style="background:var(--accent); color:var(--accent-ink); font-weight:700">Trained on 58k Samples</span>
+            </div>
+            <div id="mlDetails" class="details-list">
+              <!-- Dynamically populated -->
+            </div>
+          </div>
+
+          <!-- Card 1: Safe Preview / Screenshot -->
+          <div class="grid-card">
+            <div class="card-title">
+              <span>🖼️ Sandboxed Safe Preview</span>
+              <span class="mini-tag">Headless Isolated</span>
+            </div>
+            <div class="screenshot-container" id="screenshotBox">
+              <div class="screenshot-placeholder">
+                <p>Generating isolated render...</p>
+              </div>
+            </div>
+            <p class="card-hint">Rendered in an isolated headless browser with disabled cookies and downloads.</p>
+          </div>
+
+          <!-- Card 2: Form & Credential Theft Forensics -->
+          <div class="grid-card">
+            <div class="card-title">
+              <span>📝 Form & Credential Theft</span>
+              <span class="mini-tag" id="formBadge">0 Forms</span>
+            </div>
+            <div id="formDetails" class="details-list">
+              <!-- Dynamically populated -->
+            </div>
+          </div>
+
+          <!-- Card 3: Multi-Hop Redirect Path -->
+          <div class="grid-card">
+            <div class="card-title">
+              <span>🔀 Redirect & Wrapper Chain</span>
+              <span class="mini-tag" id="hopBadge">1 Hop</span>
+            </div>
+            <div id="redirectTimeline" class="timeline">
+              <!-- Dynamically populated -->
+            </div>
+          </div>
+
+          <!-- Card 4: DNS & Infrastructure Intel -->
+          <div class="grid-card">
+            <div class="card-title">
+              <span>🌐 DNS & Infrastructure</span>
+              <span class="mini-tag" id="dnsBadge">Live</span>
+            </div>
+            <div id="dnsDetails" class="details-list">
+              <!-- Dynamically populated -->
+            </div>
+          </div>
+
+          <!-- Card 5: SSL/TLS Certificate -->
+          <div class="grid-card">
+            <div class="card-title">
+              <span>🔒 SSL / TLS Certificate</span>
+              <span class="mini-tag" id="tlsBadge">TLS</span>
+            </div>
+            <div id="tlsDetails" class="details-list">
+              <!-- Dynamically populated -->
+            </div>
+          </div>
+
+          <!-- Card 7: Live Threat Feeds (OpenPhish) -->
+          <div class="grid-card">
+            <div class="card-title">
+              <span>🛡️ Global Threat Feeds</span>
+              <span class="mini-tag" id="feedBadge">Live Sync</span>
+            </div>
+            <div id="feedDetails" class="details-list">
+              <!-- Dynamically populated -->
+            </div>
+          </div>
+
+          <!-- Card 8: ICANN RDAP Registry & Domain Age -->
+          <div class="grid-card">
+            <div class="card-title">
+              <span>📋 ICANN RDAP Domain Age</span>
+              <span class="mini-tag" id="rdapBadge">Registry</span>
+            </div>
+            <div id="rdapDetails" class="details-list">
+              <!-- Dynamically populated -->
+            </div>
+          </div>
+
+          <!-- Card 9: ASN & Geo Infrastructure -->
+          <div class="grid-card">
+            <div class="card-title">
+              <span>🏢 Hosting ASN & Geolocation</span>
+              <span class="mini-tag" id="ipIntelBadge">Network</span>
+            </div>
+            <div id="ipIntelDetails" class="details-list">
+              <!-- Dynamically populated -->
+            </div>
+          </div>
+
+          <!-- Card 6: Query Parameter Explainer -->
+          <div class="grid-card">
+            <div class="card-title">
+              <span>🔍 URL Parameter Explainer</span>
+              <span class="mini-tag" id="paramBadge">0 Params</span>
+            </div>
+            <div id="paramDetails" class="details-list">
+              <!-- Dynamically populated -->
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Actionable Mitigation Advice -->
+        <div class="card-section advice-section">
+          <h3>Recommended Safety Action</h3>
+          <ul id="adviceList" class="advice-list">
+            <!-- Dynamic advice -->
+          </ul>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- TAB 2: EMAIL & TEXT EXTRACTOR -->
+    <section id="tab-text" class="tab-panel">
+      <div class="hero">
+        <h1>Extract & Scan Links from Messages</h1>
+        <p class="subtitle">Paste the entire text of a suspicious email, WhatsApp message, or SMS. Linkscope will extract, un-defang, and evaluate every link inside.</p>
+      </div>
+
+      <div class="search-box-card">
+        <textarea id="rawTextInput" rows="6" placeholder="Paste suspicious email text, WhatsApp message, or defanged notes here..."></textarea>
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-top:1rem;">
+          <span class="hint-text">Extracts explicit links, defanged formats like bad(.)site[.]com, and naked domains.</span>
+          <button id="extractBtn" class="primary-btn">Extract Links</button>
+        </div>
+      </div>
+
+      <div id="extractedResults" class="results-card" style="display:none">
+        <h3>Extracted Links (<span id="extractedCount">0</span>)</h3>
+        <div id="extractedList" class="extracted-list"></div>
+      </div>
+    </section>
+
+    <!-- TAB 3: URL COMPARATOR (DIFF TOOL) -->
+    <section id="tab-compare" class="tab-panel">
+      <div class="hero">
+        <h1>Side-by-Side URL Diff</h1>
+        <p class="subtitle">Compare an authentic company link against a suspected fake to spot deceptive differences.</p>
+      </div>
+
+      <div class="search-box-card">
+        <div class="compare-inputs">
+          <div class="compare-col">
+            <label>Official / Trusted Link (A):</label>
+            <input type="text" id="diffUrlA" placeholder="https://www.paypal.com/signin">
+          </div>
+          <div class="compare-col">
+            <label>Suspected / Phishing Link (B):</label>
+            <input type="text" id="diffUrlB" placeholder="hxxps://paypal-security.pages[.]dev/verify">
+          </div>
+        </div>
+        <div style="text-align:right; margin-top:1rem;">
+          <button id="compareBtn" class="primary-btn">Compare Links</button>
+        </div>
+      </div>
+
+      <div id="compareResults" class="results-card" style="display:none">
+        <h3>Comparison Findings</h3>
+        <div id="diffResultsBox"></div>
+      </div>
+    </section>
+
+    <!-- TAB 5: LOOKALIKE & TYPOSQUAT HUNTER -->
+    <section id="tab-lookalikes" class="tab-panel">
+      <div class="hero">
+        <h1>Active Lookalike & Typosquat Finder</h1>
+        <p class="subtitle">Enter your domain or a brand name. Linkscope generates homoglyph and typo permutations and executes parallel DNS queries to see which are actively registered.</p>
+      </div>
+
+      <div class="search-box-card">
+        <div class="search-row">
+          <input type="text" id="lookalikeInput" placeholder="Enter domain (e.g. chase.com or yourdomain.com)">
+          <button id="lookalikeBtn" class="primary-btn">Probe Lookalikes</button>
+        </div>
+      </div>
+
+      <div id="lookalikeResults" class="results-card" style="display:none">
+        <h3>Active Resolving Variants</h3>
+        <div id="lookalikeListBox"></div>
+      </div>
+    </section>
+
+    <!-- TAB 6: SCAN HISTORY -->
+    <section id="tab-history" class="tab-panel">
+      <div class="hero">
+        <h1>Scan History</h1>
+        <p class="subtitle">Recent analyses conducted on this browser. Persisted locally.</p>
+      </div>
+
+      <div class="results-card">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
+          <h3>Previous Scans</h3>
+          <button id="clearHistBtn" class="pill-btn danger">Clear History</button>
+        </div>
+        <div id="historyList" class="history-list"></div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="footer">
+    <p>Linkscope Pro — Real-Time URL Forensics & Phishing Detection Engine</p>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>

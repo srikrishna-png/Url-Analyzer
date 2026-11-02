@@ -1,0 +1,5 @@
+node_modules/
+public/screenshots/*.png
+models/*.csv
+.DS_Store
+*.log
