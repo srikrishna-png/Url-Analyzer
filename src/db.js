@@ -6,8 +6,8 @@
 
 import { MongoClient } from 'mongodb';
 
-const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017';
-const DB_NAME = 'linkscope_ml';
+const MONGODB_URI = process.env.MONGODB_URI || process.env.DATABASE_URL || 'mongodb://127.0.0.1:27017';
+const DB_NAME = process.env.MONGODB_DB_NAME || 'linkscope_ml';
 
 let client = null;
 let db = null;
