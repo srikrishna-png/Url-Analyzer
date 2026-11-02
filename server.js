@@ -254,7 +254,9 @@ app.post('/api/scan', async (req, res) => {
       ipIntel: ipIntelInfo,
       risk: riskAnalysis,
       ml: mlResult,
-      screenshot: screenshotInfo.success ? `/screenshots/${screenshotInfo.filename}` : null,
+      screenshot: screenshotInfo.success
+        ? (screenshotInfo.dataUrl || screenshotInfo.url || (screenshotInfo.filename ? `/screenshots/${screenshotInfo.filename}` : null))
+        : null,
       parameters: {
         total: paramsList.length,
         items: paramsList,

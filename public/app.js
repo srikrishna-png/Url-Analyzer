@@ -250,7 +250,7 @@ class UrlAnalyserApp {
     // 4. Safe Preview Screenshot
     const screenshotBox = document.getElementById('screenshotBox');
     if (screenshot) {
-      screenshotBox.innerHTML = `<img src="${screenshot}" alt="Sandboxed Visual Page Preview" loading="lazy">`;
+      screenshotBox.innerHTML = `<img src="${screenshot}" alt="Sandboxed Visual Page Preview" loading="lazy" onerror="this.parentElement.innerHTML='<div class=\\'screenshot-placeholder\\'><p>Preview render pending or target page blocks automated rendering.</p></div>'">`;
     } else {
       screenshotBox.innerHTML = `<div class="screenshot-placeholder"><p>No visual render available (target page unreachable or non-graphical endpoint).</p></div>`;
     }
