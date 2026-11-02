@@ -28,7 +28,10 @@ export async function inspectDns(hostname) {
 
   const lookupSafe = async (fn, ...args) => {
     try {
-      return await fn(...args);
+      const timeoutPromise = new Promise((_, reject) =>
+        setTimeout(() => reject(new Error('DNS lookup timeout')), 2000)
+      );
+      return await Promise.race([fn(...args), timeoutPromise]);
     } catch {
       return [];
     }

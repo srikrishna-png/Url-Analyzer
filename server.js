@@ -138,12 +138,17 @@ app.post('/api/scan', async (req, res) => {
     const targetPort = terminalHierarchy.port;
     const regDomain = terminalHierarchy.registeredDomain;
 
+    const safeExec = (promise, defaultVal) => Promise.resolve(promise).catch(err => {
+      console.warn('[Inspector Handled Error]:', err.message);
+      return defaultVal;
+    });
+
     const [dnsInfo, tlsInfo, contentInfo, screenshotInfo, rdapInfo] = await Promise.all([
-      inspectDns(targetHost),
-      inspectTlsCertificate(targetHost, targetPort),
-      scanPageContent(terminalUrl),
-      captureSafeScreenshot(terminalUrl, screenshotDir),
-      lookupDomainRdap(regDomain)
+      safeExec(inspectDns(targetHost), { hostname: targetHost, hasDns: false, a: [], aaaa: [], mx: [], ns: [], txt: [], ptr: [], flags: [] }),
+      safeExec(inspectTlsCertificate(targetHost, targetPort), { supported: false, reason: 'TLS check unavailable' }),
+      safeExec(scanPageContent(terminalUrl), { fetched: false, title: '', forms: [], sensitiveInputs: { passwordCount: 0, creditCardCount: 0, emailLoginCount: 0, otpCount: 0 }, exfiltrationRisks: [], socialEngineering: [], scripts: { total: 0, external: [], suspicious: [] }, outboundLinks: [], flags: [] }),
+      safeExec(captureSafeScreenshot(terminalUrl, screenshotDir), { success: true, url: `https://s0.wp.com/mshots/v1/${encodeURIComponent(terminalUrl)}?w=1280&h=800` }),
+      safeExec(lookupDomainRdap(regDomain), { available: false, reason: 'RDAP query unavailable' })
     ]);
 
     // Live IP Intel on primary A record (if available)
