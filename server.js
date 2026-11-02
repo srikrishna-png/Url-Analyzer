@@ -50,6 +50,10 @@ try {
 }
 app.use(express.static(publicDir));
 
+app.get('/', (req, res) => {
+  res.sendFile(path.join(publicDir, 'index.html'));
+});
+
 // Clean old screenshots on startup if directory exists
 try {
   if (fs.existsSync(screenshotDir)) {
