@@ -4,7 +4,7 @@
  * Calculates exact domain age, registrar identity, and flags Newly Registered Domains (NRDs).
  */
 
-export async function lookupDomainRdap(domainName, timeoutMs = 7000) {
+export async function lookupDomainRdap(domainName, timeoutMs = 3000) {
   if (!domainName || /^\d{1,3}(\.\d{1,3}){3}$/.test(domainName) || domainName.includes(':')) {
     return {
       available: false,

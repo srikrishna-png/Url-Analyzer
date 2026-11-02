@@ -94,11 +94,16 @@ class UrlAnalyserApp {
     scanBtn.disabled = true;
 
     try {
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), 15000);
+
       const res = await fetch('/api/scan', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ url: cleanInput })
+        body: JSON.stringify({ url: cleanInput }),
+        signal: controller.signal
       });
+      clearTimeout(timer);
 
       const data = await res.json();
       if (!res.ok) {

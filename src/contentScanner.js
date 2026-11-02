@@ -38,7 +38,7 @@ const TARGET_BRANDS = [
   'facebook', 'instagram', 'whatsapp', 'coinbase', 'binance', 'metamask', 'dhl', 'fedex', 'usps'
 ];
 
-export async function scanPageContent(targetUrl, timeoutMs = 8000) {
+export async function scanPageContent(targetUrl, timeoutMs = 3000) {
   const result = {
     url: targetUrl,
     fetched: false,

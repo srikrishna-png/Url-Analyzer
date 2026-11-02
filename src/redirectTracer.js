@@ -41,7 +41,7 @@ export function unwrapTrackingLink(urlStr) {
 }
 
 // Follow HTTP redirects manually up to maxHops
-export async function traceRedirectChain(initialUrl, maxHops = 12, timeoutMs = 8000) {
+export async function traceRedirectChain(initialUrl, maxHops = 5, timeoutMs = 2500) {
   const chain = [];
   let currentUrl = initialUrl;
   const visited = new Set();

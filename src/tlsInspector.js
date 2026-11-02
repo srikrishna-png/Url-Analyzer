@@ -5,7 +5,7 @@
 
 import tls from 'node:tls';
 
-export function inspectTlsCertificate(hostname, port = 443, timeoutMs = 6000) {
+export function inspectTlsCertificate(hostname, port = 443, timeoutMs = 2500) {
   return new Promise(resolve => {
     if (!hostname || /^\d{1,3}(\.\d{1,3}){3}$/.test(hostname)) {
       return resolve({

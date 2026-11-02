@@ -1,7 +1,7 @@
 /**
  * screenshotService.js
  * Safely captures isolated page screenshots using headless Chrome/Edge locally,
- * with automatic fallback to cloud-isolated sandbox preview (e.g. for Vercel/serverless).
+ * or delivers an instant, cloud-isolated sandbox preview URL for Vercel/serverless.
  */
 
 import { spawn } from 'node:child_process';
@@ -27,7 +27,7 @@ function getBrowserExecutable() {
   return null;
 }
 
-function captureLocalChrome(targetUrl, outputDir, browserPath, timeoutMs = 8000) {
+function captureLocalChrome(targetUrl, outputDir, browserPath, timeoutMs = 4000) {
   return new Promise((resolve) => {
     try {
       if (!fs.existsSync(outputDir)) {
@@ -95,13 +95,13 @@ function captureLocalChrome(targetUrl, outputDir, browserPath, timeoutMs = 8000)
 
 /**
  * Capture a safe sandbox screenshot:
- * 1. Attempts local Chrome/Edge if available.
- * 2. Falls back to secure cloud sandbox preview (WordPress mShots) for Vercel/serverless.
+ * - When running locally on Windows/Linux with desktop Chrome, captures locally.
+ * - On Vercel / serverless: instantly returns the cloud-isolated sandbox preview URL (0ms server latency!).
  */
-export async function captureSafeScreenshot(targetUrl, outputDir, timeoutMs = 9000) {
-  // 1. Try local browser if available (Windows/local dev)
+export async function captureSafeScreenshot(targetUrl, outputDir, timeoutMs = 4000) {
+  // If running locally with desktop Chrome/Edge, try local capture
   const browserPath = getBrowserExecutable();
-  if (browserPath) {
+  if (browserPath && process.env.VERCEL !== '1' && !process.env.NOW_REGION) {
     try {
       const localResult = await captureLocalChrome(targetUrl, outputDir, browserPath, timeoutMs);
       if (localResult && localResult.success) {
@@ -110,42 +110,12 @@ export async function captureSafeScreenshot(targetUrl, outputDir, timeoutMs = 90
     } catch {}
   }
 
-  // 2. Cloud-isolated sandbox preview (Works everywhere, including Vercel serverless)
-  try {
-    const cloudUrl = `https://s0.wp.com/mshots/v1/${encodeURIComponent(targetUrl)}?w=1280&h=800`;
-
-    // Fetch cloud render and convert to Base64 data URL for instant, reliable rendering
-    const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), 6000);
-
-    const resp = await fetch(cloudUrl, { signal: controller.signal });
-    clearTimeout(timer);
-
-    if (resp.ok) {
-      const contentType = resp.headers.get('content-type') || 'image/jpeg';
-      const arrayBuf = await resp.arrayBuffer();
-      if (arrayBuf.byteLength > 1000) {
-        const base64 = Buffer.from(arrayBuf).toString('base64');
-        return {
-          success: true,
-          isCloudSandbox: true,
-          dataUrl: `data:${contentType};base64,${base64}`,
-          url: cloudUrl
-        };
-      }
-    }
-
-    return {
-      success: true,
-      isCloudSandbox: true,
-      url: cloudUrl
-    };
-  } catch (err) {
-    // If fetch failed or timed out, return direct cloud preview URL
-    return {
-      success: true,
-      isCloudSandbox: true,
-      url: `https://s0.wp.com/mshots/v1/${encodeURIComponent(targetUrl)}?w=1280&h=800`
-    };
-  }
+  // Cloud-isolated sandbox preview URL:
+  // Instant (0ms server latency), perfectly safe, and stream-rendered by the browser
+  const cloudUrl = `https://s0.wp.com/mshots/v1/${encodeURIComponent(targetUrl)}?w=1280&h=800`;
+  return {
+    success: true,
+    isCloudSandbox: true,
+    url: cloudUrl
+  };
 }
