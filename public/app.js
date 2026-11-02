@@ -1,12 +1,12 @@
 /**
  * app.js
- * Linkscope 2.0 Client Controller.
+ * URL Analyser 2.0 Client Controller.
  */
 
-class LinkscopeApp {
+class UrlAnalyserApp {
   constructor() {
     this.currentData = null;
-    this.historyKey = 'linkscope_history_v2';
+    this.historyKey = 'url_analyser_history_v2';
     this.init();
   }
 
@@ -114,7 +114,7 @@ class LinkscopeApp {
       resultsCard.scrollIntoView({ behavior: 'smooth' });
 
     } catch (err) {
-      alert('Error connecting to Linkscope server: ' + err.message);
+      alert('Error connecting to URL Analyser server: ' + err.message);
     } finally {
       loading.style.display = 'none';
       scanBtn.disabled = false;
@@ -654,5 +654,5 @@ class LinkscopeApp {
   }
 }
 
-const app = new LinkscopeApp();
+const app = new UrlAnalyserApp();
 window.app = app;

@@ -21,7 +21,7 @@ export async function lookupDomainRdap(domainName, timeoutMs = 7000) {
     const res = await fetch(`https://rdap.org/domain/${encodeURIComponent(cleanDomain)}`, {
       headers: {
         'Accept': 'application/rdap+json, application/json',
-        'User-Agent': 'Linkscope-Cyber-Intel/2.0'
+        'User-Agent': 'UrlAnalyser-Cyber-Intel/2.0'
       },
       signal: controller.signal
     });

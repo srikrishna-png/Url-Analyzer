@@ -19,7 +19,7 @@ const CACHE_DIR = path.join(__dirname, '..', 'models');
 
 async function main() {
   console.log('================================================================');
-  console.log('   LINKSCOPE 2.0 MACHINE LEARNING MODEL TRAINING PIPELINE      ');
+  console.log('   URL ANALYSER 2.0 MACHINE LEARNING MODEL TRAINING PIPELINE   ');
   console.log('================================================================');
 
   // 1. Connect to MongoDB

@@ -1,6 +1,6 @@
 /**
  * db.js
- * MongoDB Connection and Persistence Layer for Linkscope ML.
+ * MongoDB Connection and Persistence Layer for URL Analyser ML.
  * Connects to MongoDB 8.3 on localhost:27017.
  */
 

@@ -31,7 +31,7 @@ class LiveThreatFeedManager {
       const timer = setTimeout(() => controller.abort(), 10000);
 
       const res = await fetch('https://openphish.com/feed.txt', {
-        headers: { 'User-Agent': 'Linkscope-Threat-Intel/2.0' },
+        headers: { 'User-Agent': 'UrlAnalyser-Threat-Intel/2.0' },
         signal: controller.signal
       });
       clearTimeout(timer);

@@ -1,6 +1,6 @@
 /**
  * server.js
- * Linkscope URL Analyzer & Phishing Detection Engine Server.
+ * URL Analyser & Phishing Detection Engine Server.
  */
 
 import express from 'express';
@@ -352,5 +352,5 @@ app.get('/api/ml/stats', async (req, res) => {
 });
 
 app.listen(PORT, () => {
-  console.log(`Linkscope Server running on http://localhost:${PORT}`);
+  console.log(`URL Analyser Server running on http://localhost:${PORT}`);
 });

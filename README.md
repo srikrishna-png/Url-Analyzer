@@ -1,6 +1,6 @@
-# Linkscope 2.0 – Advanced URL Forensics & Phishing Defense Engine
+# URL Analyser 2.0 – Advanced URL Forensics & Phishing Defense Engine
 
-Linkscope is a production-grade URL intelligence and phishing detection platform designed to protect users and security analysts from sophisticated social engineering, tracking wrappers, credential harvesters, and cloud-hosted phishing campaigns.
+URL Analyser is a production-grade URL intelligence and phishing detection platform designed to protect users and security analysts from sophisticated social engineering, tracking wrappers, credential harvesters, and cloud-hosted phishing campaigns.
 
 ---
 
@@ -8,7 +8,7 @@ Linkscope is a production-grade URL intelligence and phishing detection platform
 
 ### 1. Multi-Modal Input Engine
 * **Direct URL Inspection:** Accepts standard URLs, naked domains, and automatically refangs security writeup strings (`hxxps://`, `[.]`, `[:]`).
-* **Raw Message / Email Extractor:** Paste an entire email body, WhatsApp message, or SMS. Linkscope automatically identifies, normalizes, and extracts all embedded links for single-click forensic inspection.
+* **Raw Message / Email Extractor:** Paste an entire email body, WhatsApp message, or SMS. URL Analyser automatically identifies, normalizes, and extracts all embedded links for single-click forensic inspection.
 * **Side-by-Side URL Diff:** Compare legitimate brand URLs with suspected imitations to expose deceptive subdomain spoofing and character discrepancies.
 * **Active Typosquat & Lookalike Hunter:** Generates homoglyphs, omissions, and TLD permutations with parallel DNS resolution.
 
@@ -18,8 +18,7 @@ Linkscope is a production-grade URL intelligence and phishing detection platform
 * **Live Global Threat Feeds:** Continuously synchronizes with the live OpenPhish active phishing database.
 * **Official ICANN RDAP Registry:** Queries domain creation timestamps to detect Newly Registered Domains (NRDs).
 
-### 2. Multi-Tier Analysis Engine
-* **Visual Safe Preview (Headless Sandbox):** Renders a high-resolution screenshot of the target website using an isolated headless browser with disabled cookies, detached storage, and blocked downloads.
+### 3. Multi-Tier Analysis Engine
 * **Multi-Hop Redirect Tracer:** Follows HTTP 301, 302, 303, 307, 308 redirects and automatically unwraps enterprise tracking wrappers like **Microsoft Defender SafeLinks**, **Google Click Redirectors**, and **Facebook Link Shims**.
 * **Form & Credential Theft Forensics:** Scans the destination HTML for `<form action="...">` submissions. Immediately alerts if entered credentials are sent to Discord Webhooks, Telegram Bots (`api.telegram.org`), Formspree, or raw numerical IP addresses.
 * **Cloud-Hosted Phishing Detection:** Flags credential collection and banking lures hosted on free shared cloud providers (`web.app`, `firebaseapp.com`, `pages.dev`, `workers.dev`, `vercel.app`, `github.io`, `notion.site`, etc.).
@@ -34,6 +33,7 @@ Linkscope is a production-grade URL intelligence and phishing detection platform
 
 ### Prerequisites
 * Node.js v18+ (tested on Node.js v22)
+* MongoDB 8.3 (local or remote instance)
 
 ### Installation
 Dependencies are already installed in this directory:
@@ -42,7 +42,7 @@ npm install
 ```
 
 ### Running the Server
-To launch the Linkscope dashboard and engine:
+To launch the URL Analyser dashboard and engine:
 ```bash
 npm start
 ```
