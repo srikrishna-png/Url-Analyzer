@@ -41,17 +41,23 @@ app.use(express.urlencoded({ extended: true }));
 // Serve frontend static files
 const publicDir = path.join(__dirname, 'public');
 const screenshotDir = path.join(publicDir, 'screenshots');
-if (!fs.existsSync(screenshotDir)) {
-  fs.mkdirSync(screenshotDir, { recursive: true });
+try {
+  if (!fs.existsSync(screenshotDir)) {
+    fs.mkdirSync(screenshotDir, { recursive: true });
+  }
+} catch {
+  // Read-only filesystem in serverless environments (e.g. Vercel)
 }
 app.use(express.static(publicDir));
 
-// Clean old screenshots on startup
+// Clean old screenshots on startup if directory exists
 try {
-  const existingFiles = fs.readdirSync(screenshotDir);
-  for (const f of existingFiles) {
-    if (f.startsWith('shot_')) {
-      fs.unlinkSync(path.join(screenshotDir, f));
+  if (fs.existsSync(screenshotDir)) {
+    const existingFiles = fs.readdirSync(screenshotDir);
+    for (const f of existingFiles) {
+      if (f.startsWith('shot_')) {
+        fs.unlinkSync(path.join(screenshotDir, f));
+      }
     }
   }
 } catch {}
@@ -61,30 +67,44 @@ let activeMlModel = null;
 let activeModelMeta = null;
 
 async function initMl() {
-  await connectDb();
-  const dbModel = await getActiveModel();
-  if (dbModel && dbModel.modelWeights) {
-    activeMlModel = RandomForestModel.fromJSON(dbModel.modelWeights);
-    activeModelMeta = {
-      version: dbModel.version,
-      metrics: dbModel.metrics,
-      trainingDataset: dbModel.trainingDataset,
-      featureImportances: dbModel.featureImportances
-    };
-    console.log(`[ML Engine] Loaded active model "${dbModel.version}" from MongoDB (${dbModel.metrics?.accuracy}% accuracy)`);
-  } else if (fs.existsSync(path.join(__dirname, 'models', 'active_model.json'))) {
-    const raw = JSON.parse(fs.readFileSync(path.join(__dirname, 'models', 'active_model.json'), 'utf8'));
-    activeMlModel = RandomForestModel.fromJSON(raw.modelWeights);
-    activeModelMeta = {
-      version: raw.version,
-      metrics: raw.metrics,
-      trainingDataset: raw.trainingDataset,
-      featureImportances: raw.featureImportances
-    };
-    console.log(`[ML Engine] Loaded active model "${raw.version}" from local cache (${raw.metrics?.accuracy}% accuracy)`);
+  try {
+    await connectDb();
+    const dbModel = await getActiveModel();
+    if (dbModel && dbModel.modelWeights) {
+      activeMlModel = RandomForestModel.fromJSON(dbModel.modelWeights);
+      activeModelMeta = {
+        version: dbModel.version,
+        metrics: dbModel.metrics,
+        trainingDataset: dbModel.trainingDataset,
+        featureImportances: dbModel.featureImportances
+      };
+      console.log(`[ML Engine] Loaded active model "${dbModel.version}" from MongoDB (${dbModel.metrics?.accuracy}% accuracy)`);
+      return activeMlModel;
+    }
+  } catch (err) {
+    console.warn('[ML Engine] MongoDB model check warning:', err.message);
   }
+
+  try {
+    const localModelPath = path.join(__dirname, 'models', 'active_model.json');
+    if (fs.existsSync(localModelPath)) {
+      const raw = JSON.parse(fs.readFileSync(localModelPath, 'utf8'));
+      activeMlModel = RandomForestModel.fromJSON(raw.modelWeights);
+      activeModelMeta = {
+        version: raw.version,
+        metrics: raw.metrics,
+        trainingDataset: raw.trainingDataset,
+        featureImportances: raw.featureImportances
+      };
+      console.log(`[ML Engine] Loaded active model "${raw.version}" from local cache (${raw.metrics?.accuracy}% accuracy)`);
+      return activeMlModel;
+    }
+  } catch (err) {
+    console.warn('[ML Engine] Local model check warning:', err.message);
+  }
+  return null;
 }
-initMl();
+initMl().catch(() => {});
 
 /**
  * POST /api/scan

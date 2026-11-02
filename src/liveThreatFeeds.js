@@ -17,8 +17,10 @@ class LiveThreatFeedManager {
     // Initial feed fetch in background
     this.updateFeeds();
 
-    // Auto-refresh every 2 hours
-    setInterval(() => this.updateFeeds(), 2 * 60 * 60 * 1000);
+    // Auto-refresh periodically if running as long-running server (non-serverless)
+    if (process.env.VERCEL !== '1' && !process.env.NOW_REGION) {
+      setInterval(() => this.updateFeeds(), 2 * 60 * 60 * 1000);
+    }
   }
 
   async updateFeeds() {
